@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 var createError = require("http-errors");
 var express = require("express");
 var path = require("path");
@@ -5,7 +7,6 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 
 const MongoClient = require("mongodb").MongoClient;
-const config = require("../config");
 const cors = require("cors");
 
 var indexRouter = require("./routes/index");
@@ -13,14 +14,14 @@ var usersRouter = require("./routes/users");
 
 var app = express();
 
-const DB = config.dbHost.replace("<password>", config.dbPassword);
+const DB = process.env.dbHost.replace("<password>", process.env.dbPassword);
 
 MongoClient.connect(DB, {
   useNewUrlParser: true,
 }).then((client) => {
-  const db = client.db(config.dbName);
-  const collection = db.collection(config.collectionName);
-  app.locals[config.collectionName] = collection;
+  const db = client.db(process.env.dbName);
+  const collection = db.collection(process.env.collectionName);
+  app.locals[process.env.collectionName] = collection;
 });
 
 // view engine setup
@@ -35,7 +36,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
 
 app.use((req, res, next) => {
-  const collection = req.app.locals[config.collectionName];
+  const collection = req.app.locals[process.env.collectionName];
   req.collection = collection;
   next();
 });
